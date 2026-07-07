@@ -1,0 +1,48 @@
+# ORA Warden — default constitution
+#
+# The broker enforces its built-in floors (destructive-block, sensitive-path block, egress lock,
+# hash-chained audit) even with NO constitution present. This file makes the governing principles
+# explicit and lets you tighten policy. Point the broker at your own copy with ORA_CONSTITUTION_PATH.
+#
+# Immutable principles apply at every authority level and cannot be downgraded. Authority levels
+# A0–A5 scale how much autonomy is granted WITHIN these principles — never outside them.
+
+immutable_principles:
+  - name: no-off-box-exfiltration
+    ora_constraint: >
+      Governed actions must not move local data off this machine. Outbound network egress from the
+      governed shell is kernel-locked; sending, uploading, or transmitting data to an external
+      destination is not permitted from a governed action.
+    enforcement: kernel egress lock + audit
+
+  - name: no-destruction-without-authorization
+    ora_constraint: >
+      Irreversible or destructive operations (recursive delete, disk wipe, history rewrite,
+      privilege escalation) are blocked from the ordinary governed path and require explicit,
+      human-authorized (operator-token) intent.
+    enforcement: destructive-intent gate + operator token
+
+  - name: secrets-are-off-limits
+    ora_constraint: >
+      Credential and key material (.ssh, .gnupg, .aws, keyrings, .env, shell rc files,
+      authorized_keys) must not be written or altered by a governed action.
+    enforcement: sensitive-path block
+
+  - name: tamper-evident-record
+    ora_constraint: >
+      Every governed action is appended to an audit log that can only grow. The log is
+      hash-chained and its head is signed; any rewrite breaks verification.
+    enforcement: append-only hash chain + signed tree head
+
+governance_rules:
+  - name: propose-before-impact
+    ora_constraint: >
+      Impactful actions (external sends, deploys, spends, client deliverables) should be routed to
+      the human approval queue and wait for the operator's explicit approval before they run.
+    enforcement: approval queue
+
+  - name: fail-closed
+    ora_constraint: >
+      When policy evaluation is uncertain, the answer is no. Ambiguity resolves to the safer,
+      more-restrictive outcome, not the permissive one.
+    enforcement: default-deny

@@ -1,0 +1,29 @@
+# Smithery listing metadata for ORA Warden.
+# ORA Warden is a stdio MCP server that bridges to a local, fail-closed governance broker. It is
+# NOT a pure hosted server — the broker (the enforcement layer) runs on the user's own machine.
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      ORA_BROKER_URL:
+        type: string
+        default: "http://127.0.0.1:4573"
+        description: "URL of the local ORA Warden governance broker (the enforcement layer)."
+      ORA_OPERATOR_URL:
+        type: string
+        default: "http://127.0.0.1:5577"
+        description: "URL of the optional local human-approval queue."
+      ORA_WARDEN_TOKEN_FILE:
+        type: string
+        description: "Path to the operator token file that authorizes gated actions."
+  commandFunction: |
+    (config) => ({
+      command: "uvx",
+      args: ["ora-warden"],
+      env: {
+        ORA_BROKER_URL: config.ORA_BROKER_URL || "http://127.0.0.1:4573",
+        ORA_OPERATOR_URL: config.ORA_OPERATOR_URL || "http://127.0.0.1:5577",
+        ...(config.ORA_WARDEN_TOKEN_FILE ? { ORA_WARDEN_TOKEN_FILE: config.ORA_WARDEN_TOKEN_FILE } : {})
+      }
+    })

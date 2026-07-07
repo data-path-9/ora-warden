@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# ora-warden-broker — launch the fail-closed governance broker with portable, per-user paths.
+#
+# The broker is the enforcement layer ORA Warden's MCP tools call: it gates every shell/file
+# action, blocks destructive + secret + exfiltrating operations, holds the egress lock, and writes
+# the tamper-evident audit log. It resolves $HOME automatically and takes its writable state/audit
+# root from ORA_RUNTIME_ROOT (defaulting to an XDG data dir), so it runs under any user account.
+#
+# Requires the `ora-runtime` broker binary on PATH (or set ORA_WARDEN_BROKER_BIN). A default
+# constitution is installed alongside this script; override with ORA_CONSTITUTION_PATH.
+set -euo pipefail
+
+HOST="${ORA_WARDEN_HOST:-127.0.0.1}"
+PORT="${ORA_WARDEN_PORT:-4573}"
+
+# Writable state/audit root (portable; per-user, never a hardcoded home).
+: "${ORA_RUNTIME_ROOT:=${XDG_DATA_HOME:-$HOME/.local/share}/ora-warden/runtime}"
+export ORA_RUNTIME_ROOT
+mkdir -p "$ORA_RUNTIME_ROOT/state" "$ORA_RUNTIME_ROOT/audit"
+
+# Default constitution shipped with Warden (broker still enforces its built-in floors without one).
+_here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+: "${ORA_CONSTITUTION_PATH:=$_here/../share/odin-constitution.yaml}"
+export ORA_CONSTITUTION_PATH
+
+BIN="${ORA_WARDEN_BROKER_BIN:-ora-runtime}"
+if ! command -v "$BIN" >/dev/null 2>&1 && [ ! -x "$BIN" ]; then
+  echo "ora-warden-broker: broker binary '$BIN' not found." >&2
+  echo "  Install the ora-runtime broker binary, or set ORA_WARDEN_BROKER_BIN to its path." >&2
+  exit 127
+fi
+
+echo "ora-warden-broker: starting on http://$HOST:$PORT" >&2
+echo "  runtime root : $ORA_RUNTIME_ROOT" >&2
+echo "  constitution : $ORA_CONSTITUTION_PATH" >&2
+exec "$BIN" broker --host "$HOST" --port "$PORT"

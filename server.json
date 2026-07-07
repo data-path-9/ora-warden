@@ -1,0 +1,24 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.3d3dcanada/ora-warden",
+  "description": "A fail-closed MCP server: gives your AI agent a governed shell, human approval queue, and tamper-evident audit — it can't delete, spend, or exfiltrate without your yes. Local-first.",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/3d3dcanada/ora-warden",
+    "source": "github"
+  },
+  "websiteUrl": "https://ora.3d3d.ca",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "ora-warden",
+      "version": "0.1.0",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "ORA_BROKER_URL", "description": "Governance broker URL (default http://127.0.0.1:4573)", "isRequired": false },
+        { "name": "ORA_OPERATOR_URL", "description": "Approval queue URL (default http://127.0.0.1:5577)", "isRequired": false },
+        { "name": "ORA_WARDEN_TOKEN_FILE", "description": "Path to the operator token file for human-authorized (gated) actions", "isRequired": false }
+      ]
+    }
+  ]
+}
