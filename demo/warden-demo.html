@@ -1,0 +1,172 @@
+<title>ORA Warden — your agent does the work, it can't do the damage</title>
+<style>
+  :root{
+    --kraft:#D5B59C; --kraft-2:#C9A588; --ink:#2A2118; --hair:#B99A75;
+    --term:#191410; --term-2:#211A14; --teal:#04D9C4; --teal-dim:#0a8a80;
+    --warn:#FF6A00; --paper:#efe7dc; --dim:#8a7a66;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--kraft);
+    background-image:
+      linear-gradient(rgba(42,33,24,.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(42,33,24,.05) 1px,transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--sans);
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:clamp(20px,5vw,64px) 20px;
+  }
+  .wrap{width:100%; max-width:840px}
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--ink); opacity:.62; display:flex; align-items:center; gap:10px; margin-bottom:14px;
+  }
+  .eyebrow::before{content:""; width:26px; height:2px; background:var(--teal)}
+  h1{
+    font-family:var(--sans); font-weight:800; letter-spacing:-.02em; line-height:1.02;
+    font-size:clamp(30px,5.4vw,52px); margin:0 0 10px; text-wrap:balance; max-width:16ch;
+  }
+  h1 .hl{color:var(--teal-dim)}
+  .sub{font-size:clamp(15px,2vw,18px); line-height:1.5; max-width:56ch; color:#4a3d2e; margin:0 0 26px}
+
+  /* terminal */
+  .term{
+    background:var(--term); border-radius:12px; overflow:hidden;
+    box-shadow:0 2px 0 var(--hair),0 20px 50px -20px rgba(42,33,24,.55);
+    border:1px solid #0d0a07;
+  }
+  .bar{
+    display:flex; align-items:center; gap:8px; padding:11px 15px;
+    background:var(--term-2); border-bottom:1px solid #0d0a07;
+  }
+  .dot{width:11px; height:11px; border-radius:50%; background:#3a3128}
+  .bar .t{
+    font-family:var(--mono); font-size:12px; color:#9a8b76; margin-left:8px;
+    letter-spacing:.03em;
+  }
+  .bar .live{margin-left:auto; font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--teal); display:flex; align-items:center; gap:6px}
+  .bar .live::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--teal);
+    box-shadow:0 0 0 0 rgba(4,217,196,.6); animation:pulse 2s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 7px rgba(4,217,196,0)}100%{box-shadow:0 0 0 0 rgba(4,217,196,0)}}
+
+  .screen{
+    font-family:var(--mono); font-size:clamp(12.5px,1.7vw,15px); line-height:1.7;
+    padding:20px clamp(16px,3vw,26px); min-height:340px; color:#d8cdbc;
+  }
+  .ln{display:flex; gap:10px; white-space:pre-wrap; word-break:break-word; opacity:0}
+  .ln.show{opacity:1}
+  .who{color:var(--dim); flex:0 0 auto}
+  .who.you{color:var(--teal)}
+  .cmd{color:#efe7dc}
+  .res{padding-left:2px}
+  .ok{color:var(--teal)}
+  .blocked{color:var(--warn); font-weight:600}
+  .muted{color:#8a7a66}
+  .audit-row{color:#b9ac97}
+  .audit-row .st-ok{color:var(--teal)} .audit-row .st-bl{color:var(--warn)}
+  .cursor{display:inline-block; width:9px; height:1.05em; background:var(--teal);
+    vertical-align:text-bottom; animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .verify{margin-top:6px; color:var(--teal)}
+
+  .foot{
+    display:flex; flex-wrap:wrap; gap:16px 26px; align-items:center; justify-content:space-between;
+    margin-top:22px; font-family:var(--mono); font-size:13px; color:#4a3d2e;
+  }
+  .foot b{color:var(--ink); font-weight:700}
+  .pills{display:flex; gap:8px; flex-wrap:wrap}
+  .pill{border:1px solid var(--hair); border-radius:999px; padding:4px 11px; font-size:12px;
+    letter-spacing:.02em; color:#4a3d2e; background:rgba(255,255,255,.18)}
+  a.cta{color:var(--teal-dim); text-decoration:none; border-bottom:2px solid var(--teal); font-weight:700}
+  .replay{cursor:pointer; background:none; border:1px solid var(--hair); border-radius:8px;
+    font-family:var(--mono); font-size:12px; color:#4a3d2e; padding:6px 12px}
+  .replay:hover{border-color:var(--ink)}
+  .replay:focus-visible{outline:2px solid var(--teal); outline-offset:2px}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">ORA Warden · fail-closed MCP</div>
+  <h1>Your agent does the work. It <span class="hl">can't do the damage.</span></h1>
+  <p class="sub">A real session. The agent runs freely — until it reaches for <code>rm&nbsp;-rf</code>, a secret, or the network. Then the Warden freezes it, and every attempt lands on a tamper-evident log. No mockup; this is the broker's actual output.</p>
+
+  <div class="term" role="img" aria-label="Terminal demo: ORA Warden allows normal work, blocks rm -rf and an ssh-key write, and shows a tamper-evident audit log">
+    <div class="bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="t">ora-warden · governed session</span>
+      <span class="live">live</span>
+    </div>
+    <div class="screen" id="screen"></div>
+  </div>
+
+  <div class="foot">
+    <div class="pills">
+      <span class="pill">🛑 destructive blocked</span>
+      <span class="pill">🔒 secrets off-limits</span>
+      <span class="pill">🧾 tamper-evident audit</span>
+      <span class="pill">local-first</span>
+    </div>
+    <div>Free &amp; open · <a class="cta" href="https://ora.3d3d.ca">ora.3d3d.ca</a></div>
+  </div>
+  <div class="foot" style="margin-top:10px">
+    <button class="replay" id="replay">↻ replay</button>
+    <span style="color:#6b5c48">Apache-2.0 · works with Claude Desktop, Cursor, Cline, Claude Code</span>
+  </div>
+</div>
+
+<script>
+const SEQ = [
+  {who:"agent>", cls:"", cmd:"echo report built > report.txt && wc -c report.txt", res:[{t:"✓ ran   13 report.txt", c:"ok"}]},
+  {who:"agent>", cls:"", cmd:"rm -rf ~/workspace", res:[{t:"✗ BLOCKED  HTTP 409 — destructive command refused. No override flag exists.", c:"blocked"}]},
+  {who:"agent>", cls:"", cmd:'write ~/.ssh/authorized_keys  "attacker-key"', res:[{t:"✗ BLOCKED  HTTP 403 — .ssh is off-limits to governed writes.", c:"blocked"}]},
+  {who:"you>", cls:"you", cmd:"show me exactly what happened", audit:[
+      ["broker.shell.run","completed","echo report built > report.txt","ok"],
+      ["broker.shell.run","blocked","rm -rf ~/workspace","bl"],
+      ["broker.files.write","blocked","~/.ssh/authorized_keys","bl"],
+    ], verify:"audit chain verified — intact ✓  (0 broken, signed head)"},
+];
+const screen = document.getElementById('screen');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = ms => new Promise(r=>setTimeout(r, ms));
+
+function line(cls){ const d=document.createElement('div'); d.className='ln '+(cls||''); screen.appendChild(d); return d; }
+
+async function typeInto(el, whoTxt, whoCls, text, speed){
+  el.classList.add('show');
+  const who=document.createElement('span'); who.className='who '+(whoCls||''); who.textContent=whoTxt;
+  const cmd=document.createElement('span'); cmd.className='cmd';
+  const cur=document.createElement('span'); cur.className='cursor';
+  el.append(who,cmd,cur);
+  for(const ch of text){ cmd.textContent+=ch; await sleep(speed); }
+  cur.remove();
+}
+
+async function run(){
+  screen.innerHTML='';
+  for(const step of SEQ){
+    const cmdLine=line();
+    if(reduce){ cmdLine.classList.add('show');
+      cmdLine.innerHTML='<span class="who '+(step.cls||'')+'">'+step.who+'</span><span class="cmd">'+step.cmd+'</span>'; }
+    else await typeInto(cmdLine, step.who, step.cls, step.cmd, 18);
+    await sleep(reduce?0:230);
+    if(step.res) for(const r of step.res){
+      const rl=line('res show'); rl.innerHTML='<span class="'+r.c+'">'+r.t+'</span>'; await sleep(reduce?0:360);
+    }
+    if(step.audit){
+      for(const [tool,st,cmd,c] of step.audit){
+        const rl=line('res show audit-row');
+        const stc = c==='ok'?'st-ok':'st-bl';
+        rl.innerHTML='  • <span style="color:#d8cdbc">'+tool.padEnd(18)+'</span> <span class="'+stc+'">'+st.padEnd(10)+'</span> <span class="muted">'+cmd+'</span>';
+        await sleep(reduce?0:200);
+      }
+      const v=line('res show verify'); v.textContent=step.verify;
+    }
+    await sleep(reduce?0:520);
+  }
+}
+document.getElementById('replay').addEventListener('click',run);
+run();
+</script>
