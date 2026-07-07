@@ -6,6 +6,8 @@ tools are HUMAN-AUTHORIZED ONLY (operator-token gated) — never call them unles
 explicitly says so, and never approve your own proposal.
 """
 
+from typing import Any
+
 from .. import client
 from . import ora_tool
 
@@ -16,8 +18,14 @@ def register_queue_tools(server):
 
     @server.tool()
     @ora_tool
-    def propose(objective: str, recommendation: str = "", lane: str = "note",
-                confidence: int = 0, evidence_tier: str = "", payload: "dict | None" = None) -> str:
+    def propose(
+        objective: str,
+        recommendation: str = "",
+        lane: str = "note",
+        confidence: int = 0,
+        evidence_tier: str = "",
+        payload: dict[str, Any] | None = None,
+    ) -> str:
         """Put a proposed action into the governed operator QUEUE instead of doing it. The kernel
         evaluates it (confidence/evidence -> blocked / approval_required / auto_eligible) and it waits
         for the operator's approval. Use this for ANYTHING that should be reviewed before it runs:

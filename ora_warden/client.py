@@ -20,7 +20,13 @@ class TokenMissing(Exception):
     """A human-authorized (gated) call was attempted but no operator token is loaded."""
 
 
+class UnsafeEndpoint(Exception):
+    """A configured governance URL is not loopback-only."""
+
+
 def _request(method, base, path, *, params=None, body=None, gated=False):
+    if not config.is_loopback_url(base):
+        raise UnsafeEndpoint()
     headers = {}
     if gated:
         tok = config.operator_token()

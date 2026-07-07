@@ -12,6 +12,14 @@ set -euo pipefail
 
 HOST="${ORA_WARDEN_HOST:-127.0.0.1}"
 PORT="${ORA_WARDEN_PORT:-4573}"
+case "$HOST" in
+  127.*|localhost|"::1"|"[::1]") ;;
+  *)
+    echo "ora-warden-broker: refusing to bind outside loopback." >&2
+    echo "  Set ORA_WARDEN_HOST to 127.0.0.1, localhost, or ::1." >&2
+    exit 2
+    ;;
+esac
 
 # Writable state/audit root (portable; per-user, never a hardcoded home).
 : "${ORA_RUNTIME_ROOT:=${XDG_DATA_HOME:-$HOME/.local/share}/ora-warden/runtime}"

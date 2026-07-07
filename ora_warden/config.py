@@ -7,6 +7,8 @@ defaults — nothing is hardcoded to a particular machine or user.
 """
 
 import os
+import ipaddress
+from urllib.parse import urlparse
 
 # --- the local governance services Warden bridges to (loopback only) ---
 BROKER_URL = os.environ.get("ORA_BROKER_URL", "http://127.0.0.1:4573").rstrip("/")
@@ -16,6 +18,24 @@ OPERATOR_URL = os.environ.get("ORA_OPERATOR_URL", "http://127.0.0.1:5577").rstri
 DEFAULT_CWD = os.environ.get("ORA_DEFAULT_CWD", os.path.expanduser("~"))
 DEFAULT_AUTHORITY = os.environ.get("ORA_DEFAULT_AUTHORITY", "A3")
 HTTP_TIMEOUT = float(os.environ.get("ORA_HTTP_TIMEOUT", "180"))
+_LOOPBACK_HOSTNAMES = {"localhost"}
+
+
+def is_loopback_url(url: str) -> bool:
+    """Return True only for http(s) URLs targeting the local loopback interface."""
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return False
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        return False
+    host = parsed.hostname.lower()
+    if host in _LOOPBACK_HOSTNAMES:
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
 
 
 def _default_token_file() -> str:

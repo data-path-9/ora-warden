@@ -16,10 +16,15 @@ def ora_tool(fn):
             return fn(*args, **kwargs)
         except client.OraDown as e:
             return client.down_message(e)
+        except client.UnsafeEndpoint:
+            return (
+                "BLOCKED by ORA Warden (loopback-only, fail-closed): a governance endpoint is "
+                "configured outside localhost/127.0.0.1/::1."
+            )
         except client.TokenMissing:
             return (
-                "Operator token not loaded — this is a human-authorized action and cannot run. "
-                "It is only meant to be called when the operator explicitly asks for it."
+                "BLOCKED by ORA Warden (operator approval required, fail-closed): operator token "
+                "not loaded for this human-authorized action."
             )
         except Exception as e:  # surface any unexpected error to the caller
             return f"ORA Warden error in {fn.__name__}: {type(e).__name__}: {e}"
