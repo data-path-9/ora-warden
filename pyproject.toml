@@ -16,6 +16,10 @@ classifiers = [
   "Intended Audience :: Developers",
   "License :: OSI Approved :: Apache Software License",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Security",
 ]
 dependencies = [
@@ -23,12 +27,21 @@ dependencies = [
   "httpx>=0.27",
 ]
 
+[project.optional-dependencies]
+test = [
+  "build>=1.2",
+  "jsonschema>=4.21",
+  "pytest>=8",
+]
+
 [project.urls]
 Homepage = "https://ora.3d3d.ca"
 Repository = "https://github.com/3d3dcanada/ora-warden"
+Issues = "https://github.com/3d3dcanada/ora-warden/issues"
 
 [project.scripts]
 ora-warden = "ora_warden.server:main"
+ora-warden-broker = "ora_warden.broker:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["ora_warden"]
