@@ -3,7 +3,11 @@
     "ora-warden": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["ora-warden"],
+      "args": [
+        "--from",
+        "git+https://github.com/3d3dcanada/ora-warden",
+        "ora-warden"
+      ],
       "env": {
         "ORA_BROKER_URL": "http://127.0.0.1:4573",
         "ORA_OPERATOR_URL": "http://127.0.0.1:5577"

@@ -55,7 +55,14 @@ seeds the rest. Free.
   4. Confirm it resolves at the registry API.
 - **Validate first:** `server.json` against the published schema before submit.
 
-## 2. PyPI — pypi.org  (prerequisite for §1 and for `uvx`/`pipx`)
+## 2. PyPI — DROPPED (owner decision 2026-07-09: account signup unworkable)
+Distribution is GitHub-only: `uvx --from git+https://github.com/3d3dcanada/ora-warden ora-warden`
+or `pipx install git+https://github.com/3d3dcanada/ora-warden` — zero extra accounts. The
+Official Registry (§1) therefore waits on an **MCPB bundle** attached to a GitHub release
+(registry schema 2025-12-11 supports registryType `mcpb` + fileSha256) — a follow-up, not a
+blocker. Smithery / mcp.so / PulseMCP (§3–5) are repo-based and can proceed now.
+
+### old PyPI notes (kept for reference)
 Not a marketplace, but the package host `uvx ora-warden` pulls from.
 - **Account:** PyPI account + API token.
 - **Steps (paired):** `python -m build` → `twine upload dist/*` with Randall's token. Verify

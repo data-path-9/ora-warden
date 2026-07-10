@@ -1,7 +1,5 @@
 # ORA Warden
 
-[![PyPI](https://img.shields.io/pypi/v/ora-warden.svg)](https://pypi.org/project/ora-warden/)
-[![Python](https://img.shields.io/pypi/pyversions/ora-warden.svg)](https://pypi.org/project/ora-warden/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 **A fail-closed MCP server for local AI agents. Your agent does the work; you keep the keys.**
@@ -55,7 +53,9 @@ Expected registered tool count: 15.
 Install the MCP bridge from PyPI:
 
 ```bash
-uvx ora-warden
+uvx --from git+https://github.com/3d3dcanada/ora-warden ora-warden
+# or, for a persistent install:
+pipx install git+https://github.com/3d3dcanada/ora-warden
 ```
 
 Or install it persistently:
@@ -97,7 +97,7 @@ stdio server entry to `claude_desktop_config.json` and restart Claude Desktop:
     "ora-warden": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["ora-warden"],
+      "args": ["--from", "git+https://github.com/3d3dcanada/ora-warden", "ora-warden"],
       "env": {
         "ORA_BROKER_URL": "http://127.0.0.1:4573",
         "ORA_OPERATOR_URL": "http://127.0.0.1:5577"
@@ -134,7 +134,7 @@ Use Cursor Settings -> Tools & MCP -> New MCP Server, or create `.cursor/mcp.jso
     "ora-warden": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["ora-warden"],
+      "args": ["--from", "git+https://github.com/3d3dcanada/ora-warden", "ora-warden"],
       "env": {
         "ORA_BROKER_URL": "http://127.0.0.1:4573",
         "ORA_OPERATOR_URL": "http://127.0.0.1:5577"
@@ -154,7 +154,7 @@ Cline uses `~/.cline/mcp.json` for CLI and opens its MCP settings JSON from the 
     "ora-warden": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["ora-warden"],
+      "args": ["--from", "git+https://github.com/3d3dcanada/ora-warden", "ora-warden"],
       "env": {
         "ORA_BROKER_URL": "http://127.0.0.1:4573",
         "ORA_OPERATOR_URL": "http://127.0.0.1:5577"
@@ -169,7 +169,7 @@ Cline uses `~/.cline/mcp.json` for CLI and opens its MCP settings JSON from the 
 For a local/user-scoped server:
 
 ```bash
-claude mcp add --scope user --transport stdio ora-warden -- uvx ora-warden
+claude mcp add --scope user --transport stdio ora-warden -- uvx --from git+https://github.com/3d3dcanada/ora-warden ora-warden
 ```
 
 For a project-scoped `.mcp.json`:
@@ -180,7 +180,7 @@ For a project-scoped `.mcp.json`:
     "ora-warden": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["ora-warden"],
+      "args": ["--from", "git+https://github.com/3d3dcanada/ora-warden", "ora-warden"],
       "env": {
         "ORA_BROKER_URL": "http://127.0.0.1:4573",
         "ORA_OPERATOR_URL": "http://127.0.0.1:5577"
@@ -239,7 +239,7 @@ ORA Warden is designed around conservative failure:
 | Primary user | Individual developer/operator | Teams and organizations |
 | Deployment | Local stdio bridge plus loopback broker | Hosted gateway or control plane |
 | Policy model | Fail-closed local governance floors | Centralized policy, RBAC, identity, federation |
-| Setup | `uvx ora-warden` plus local broker | Admin-managed deployment and client routing |
+| Setup | `pipx install git+https://github.com/3d3dcanada/ora-warden` plus local broker | Admin-managed deployment and client routing |
 | Data path | Local machine, loopback bridge | Often cloud-mediated or gateway-mediated |
 | Best fit | Guarding one agent on one workstation | Governing many users, servers, and identities |
 
