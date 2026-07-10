@@ -1,7 +1,8 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.3d3dcanada/ora-warden",
-  "description": "A fail-closed MCP server: gives your AI agent a governed shell, human approval queue, and tamper-evident audit — it can't delete, spend, or exfiltrate without your yes. Local-first.",
+  "description": "Local, fail-closed MCP governance for AI agents: shell, files, approval queue, and audit.",
+  "title": "ORA Warden",
   "version": "0.1.0",
   "repository": {
     "url": "https://github.com/3d3dcanada/ora-warden",
@@ -11,13 +12,19 @@
   "packages": [
     {
       "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
       "identifier": "ora-warden",
       "version": "0.1.0",
+      "runtimeHint": "uvx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "ORA_BROKER_URL", "description": "Governance broker URL (default http://127.0.0.1:4573)", "isRequired": false },
-        { "name": "ORA_OPERATOR_URL", "description": "Approval queue URL (default http://127.0.0.1:5577)", "isRequired": false },
-        { "name": "ORA_WARDEN_TOKEN_FILE", "description": "Path to the operator token file for human-authorized (gated) actions", "isRequired": false }
+        { "name": "ORA_BROKER_URL", "description": "Loopback broker URL.", "default": "http://127.0.0.1:4573" },
+        { "name": "ORA_OPERATOR_URL", "description": "Loopback approval queue URL.", "default": "http://127.0.0.1:5577" },
+        { "name": "ORA_DEFAULT_CWD", "description": "Default shell working directory." },
+        { "name": "ORA_DEFAULT_AUTHORITY", "description": "Default authority level.", "default": "A3" },
+        { "name": "ORA_HTTP_TIMEOUT", "description": "Broker HTTP timeout seconds.", "default": "180" },
+        { "name": "ORA_WARDEN_TOKEN_FILE", "description": "Operator token file path for gated actions." },
+        { "name": "ORA_OPERATOR_TOKEN", "description": "Operator token for gated actions.", "isSecret": true }
       ]
     }
   ]

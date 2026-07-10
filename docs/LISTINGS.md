@@ -55,7 +55,14 @@ seeds the rest. Free.
   4. Confirm it resolves at the registry API.
 - **Validate first:** `server.json` against the published schema before submit.
 
-## 2. PyPI — pypi.org  (prerequisite for §1 and for `uvx`/`pipx`)
+## 2. PyPI — DROPPED (owner decision 2026-07-09: account signup unworkable)
+Distribution is GitHub-only: `uvx --from git+https://github.com/3d3dcanada/ora-warden ora-warden`
+or `pipx install git+https://github.com/3d3dcanada/ora-warden` — zero extra accounts. The
+Official Registry (§1) therefore waits on an **MCPB bundle** attached to a GitHub release
+(registry schema 2025-12-11 supports registryType `mcpb` + fileSha256) — a follow-up, not a
+blocker. Smithery / mcp.so / PulseMCP (§3–5) are repo-based and can proceed now.
+
+### old PyPI notes (kept for reference)
 Not a marketplace, but the package host `uvx ora-warden` pulls from.
 - **Account:** PyPI account + API token.
 - **Steps (paired):** `python -m build` → `twine upload dist/*` with Randall's token. Verify
@@ -65,9 +72,9 @@ Not a marketplace, but the package host `uvx ora-warden` pulls from.
 Largest discovery marketplace (~7k servers), Docker-Hub-style; can run servers on their infra.
 - **Account:** GitHub sign-in.
 - **Mechanism:** connect the GitHub repo; Smithery reads a `smithery.yaml` / the server metadata.
-  **TODO before submit:** add a `smithery.yaml` (start command `uvx ora-warden`, describe the
-  optional broker dependency + env vars). Note in the listing that Warden needs its local broker
-  running — it is not a pure hosted server.
+  The repo includes a local-stdio `smithery.yaml` descriptor. Note in the listing that Warden needs
+  its local broker running — it is not a pure hosted server. Current Smithery local stdio
+  distribution should use an MCPB bundle where required by the platform.
 - **Steps (paired):** sign in → "Add server" → point at the repo → fill category/description from
   the canonical copy → submit.
 
@@ -100,8 +107,8 @@ funnel to ora.3d3d.ca (we do NOT meter tool calls — the paid product is the fu
 - [ ] Ship a real **broker binary** (release artifact) or clear build-from-source install, so a
       stranger can actually run the enforcement layer (see INSTALL / WO-18).
 - [ ] Produce the **demo clip** (agent's `rm -rf` frozen + logged).
-- [ ] Add **`smithery.yaml`** for §3.
-- [ ] Validate `server.json` against the current registry schema.
+- [x] Add **`smithery.yaml`** for §3.
+- [x] Validate `server.json` against the current registry schema.
 
 ## What Claude will NOT do (Randall does these)
 Create accounts · enter passwords/tokens · click the final "submit/publish" without Randall's

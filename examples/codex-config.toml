@@ -1,0 +1,9 @@
+[mcp_servers.ora-warden]
+command = "uvx"
+args = ["--from", "git+https://github.com/3d3dcanada/ora-warden", "ora-warden"]
+startup_timeout_sec = 20
+tool_timeout_sec = 180
+
+[mcp_servers.ora-warden.env]
+ORA_BROKER_URL = "http://127.0.0.1:4573"
+ORA_OPERATOR_URL = "http://127.0.0.1:5577"

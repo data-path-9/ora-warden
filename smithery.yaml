@@ -1,10 +1,12 @@
-# Smithery listing metadata for ORA Warden.
-# ORA Warden is a stdio MCP server that bridges to a local, fail-closed governance broker. It is
-# NOT a pure hosted server — the broker (the enforcement layer) runs on the user's own machine.
+# Smithery local-stdio listing metadata for ORA Warden.
+# ORA Warden bridges to a loopback-only broker on the user's machine. It is not a hosted Smithery
+# deployment target; current Smithery local distribution should use an MCPB bundle or this stdio
+# descriptor where supported by scanners/installers.
 startCommand:
   type: stdio
   configSchema:
     type: object
+    required: []
     properties:
       ORA_BROKER_URL:
         type: string
@@ -17,6 +19,21 @@ startCommand:
       ORA_WARDEN_TOKEN_FILE:
         type: string
         description: "Path to the operator token file that authorizes gated actions."
+      ORA_DEFAULT_CWD:
+        type: string
+        description: "Default working directory for governed shell commands."
+      ORA_DEFAULT_AUTHORITY:
+        type: string
+        default: "A3"
+        description: "Default authority level passed to the broker."
+      ORA_HTTP_TIMEOUT:
+        type: string
+        default: "180"
+        description: "HTTP timeout in seconds for loopback broker calls."
+    exampleConfig:
+      ORA_BROKER_URL: "http://127.0.0.1:4573"
+      ORA_OPERATOR_URL: "http://127.0.0.1:5577"
+      ORA_DEFAULT_AUTHORITY: "A3"
   commandFunction: |
     (config) => ({
       command: "uvx",
@@ -24,6 +41,9 @@ startCommand:
       env: {
         ORA_BROKER_URL: config.ORA_BROKER_URL || "http://127.0.0.1:4573",
         ORA_OPERATOR_URL: config.ORA_OPERATOR_URL || "http://127.0.0.1:5577",
+        ORA_DEFAULT_AUTHORITY: config.ORA_DEFAULT_AUTHORITY || "A3",
+        ORA_HTTP_TIMEOUT: config.ORA_HTTP_TIMEOUT || "180",
+        ...(config.ORA_DEFAULT_CWD ? { ORA_DEFAULT_CWD: config.ORA_DEFAULT_CWD } : {}),
         ...(config.ORA_WARDEN_TOKEN_FILE ? { ORA_WARDEN_TOKEN_FILE: config.ORA_WARDEN_TOKEN_FILE } : {})
       }
     })
