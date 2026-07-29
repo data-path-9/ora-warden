@@ -1,0 +1,83 @@
+{
+  "manifest_version": "0.2",
+  "name": "ora-warden",
+  "display_name": "ORA Warden",
+  "version": "0.1.0",
+  "description": "A fail-closed MCP server: governed shell, human approval queue, tamper-evident audit. Your agent can't delete, spend, or exfiltrate without your yes.",
+  "long_description": "ORA Warden sits between an AI agent and your machine. `shell` and `write_file` are audited and fail-closed — they BLOCK destructive commands (rm -rf, git reset, dd, sudo), secret paths (.ssh, .env, keyrings), and network exfiltration, rather than asking forgiveness afterwards. Anything that should be reviewed before it runs — deliverables, outreach, external sends, deploys, spends — goes through `propose` into a human approval queue, and nothing impactful happens without an explicit yes. Every state-changing action lands in a hash-chained audit log that `audit_verify` can prove has not been altered.\n\nLoopback only. Nothing leaves the box.",
+  "author": {
+    "name": "Randall Marshall",
+    "email": "info@3d3d.ca",
+    "url": "https://ora.3d3d.ca"
+  },
+  "homepage": "https://ora.3d3d.ca",
+  "documentation": "https://github.com/3d3dcanada/ora-warden#readme",
+  "support": "https://github.com/3d3dcanada/ora-warden/issues",
+  "license": "Apache-2.0",
+  "keywords": [
+    "governance",
+    "audit",
+    "approval",
+    "security",
+    "shell",
+    "local",
+    "fail-closed"
+  ],
+  "server": {
+    "type": "python",
+    "entry_point": "ora_warden/server.py",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/3d3dcanada/ora-warden",
+        "ora-warden"
+      ],
+      "env": {
+        "ORA_BROKER_URL": "${user_config.broker_url}",
+        "ORA_OPERATOR_URL": "${user_config.operator_url}"
+      }
+    }
+  },
+  "user_config": {
+    "broker_url": {
+      "type": "string",
+      "title": "Broker URL",
+      "description": "Loopback address of the governed tool broker that enforces the policy. Leave as the default unless you moved it.",
+      "default": "http://127.0.0.1:4573",
+      "required": false
+    },
+    "operator_url": {
+      "type": "string",
+      "title": "Operator URL",
+      "description": "Loopback address of the approval queue. Leave as the default unless you moved it.",
+      "default": "http://127.0.0.1:5577",
+      "required": false
+    }
+  },
+  "tools": [
+    { "name": "shell", "description": "Run a shell command through the governed broker. Destructive and exfiltrating commands are blocked, not confirmed." },
+    { "name": "shell_destructive", "description": "Run a command the policy classes as destructive. Requires the operator to have said so explicitly." },
+    { "name": "read_file", "description": "Read a file through the broker, with secret paths refused." },
+    { "name": "write_file", "description": "Write a file through the broker. Audited, and refused for protected paths." },
+    { "name": "propose", "description": "Queue an action for human approval — deliverables, outreach, external sends, deploys, spends." },
+    { "name": "proposals_list", "description": "List proposals waiting on the operator." },
+    { "name": "proposal_get", "description": "Read one proposal and its decision frame." },
+    { "name": "proposal_approve", "description": "Approve a proposal. Operator-only; an agent must never call this on its own initiative." },
+    { "name": "proposal_reject", "description": "Reject a proposal. Operator-only." },
+    { "name": "proposal_execute", "description": "Execute an approved proposal. Operator-only." },
+    { "name": "queue", "description": "Summarise the approval queue." },
+    { "name": "audit_recent", "description": "Show recent entries from the tamper-evident action log." },
+    { "name": "audit_verify", "description": "Verify the audit hash chain has not been altered." },
+    { "name": "audit_sth", "description": "Return the signed tree head for the audit log." },
+    { "name": "health", "description": "Confirm the governance layer is actually up before trusting any of the above." }
+  ],
+  "tools_generated": false,
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "linux", "win32"],
+    "runtimes": {
+      "python": ">=3.10"
+    }
+  }
+}
